@@ -36,8 +36,8 @@ namespace CSGraphQL.Queries
             {
                 var name = variable.Key;
                 var value = variable.Value.GetValue(this);
-                if(value != null)
-                    str.Append($"{name}: {value}, ");
+                if (value != null)
+                    str.Append(value is string ? $"{name}: \"{value}\", " : $"{name}: {value}, ");
             }
 
             if (_variables.Length != 0)
