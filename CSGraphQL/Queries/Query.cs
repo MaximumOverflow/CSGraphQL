@@ -32,7 +32,12 @@ namespace CSGraphQL.Queries
             str.Append($"{Name}(");
 
             foreach (var variable in _variables)
-                str.Append($"{variable.Key}: {variable.Value.GetValue(this)}, ");
+            {
+                var name = variable.Key;
+                var value = variable.Value.GetValue(this);
+                if(value != null)
+                    str.Append($"{name}: {value}, ");
+            }
 
             if(_variables.Length != 0) 
                 str.Remove(str.Length-2, 2).AppendLine("){");

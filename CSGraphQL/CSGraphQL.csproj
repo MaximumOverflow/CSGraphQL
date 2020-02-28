@@ -8,6 +8,7 @@
         <RootNamespace>CSGraphQL</RootNamespace>
         <PackageVersion>0.5.0</PackageVersion>
         <Description>A simple GraphQL wrapper for C#</Description>
+        <RepositoryUrl>https://github.com/MaximumOverflow/CSGraphQL</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
