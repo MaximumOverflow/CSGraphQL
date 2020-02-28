@@ -21,7 +21,17 @@ namespace CSGraphQL.Queries
         public override string ToString()
         {
             var str = new StringBuilder();
-            str.AppendLine($"{Name}{{");
+            str.Append($"{Name}");
+
+            str.AppendLine(GetRequests());
+
+            return str.ToString();
+        }
+
+        public string GetRequests()
+        {
+            var str = new StringBuilder();
+            str.AppendLine("{");
 
             foreach (var request in _requests)
                 str.AppendLine(Query.RequestToString(request));

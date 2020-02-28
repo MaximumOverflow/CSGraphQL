@@ -58,8 +58,9 @@ namespace CSGraphQL.Queries
         public static string RequestToString(QueryRequest request)
         {
             if (request.Value.PropertyType.BaseType != typeof(Type)) return request.Key.Name;
-            
-            return (Activator.CreateInstance(request.Value.PropertyType) as Type)?.ToString();
+
+            var type = Activator.CreateInstance(request.Value.PropertyType) as Type;
+            return type != null ? $"{request.Key.Name}{type.GetRequests()}" : null;
         }
         
         public static QueryVariable[] GetVariables(object query)
