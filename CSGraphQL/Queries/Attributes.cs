@@ -27,6 +27,14 @@ namespace CSGraphQL.Queries
             => Name = name.ToCamelCase();
     }
     
-    
-    public class ResultProperty : JsonProperty {}
+    public class TypeNameAttribute : Attribute
+    {
+        public readonly string Name;
+        public TypeNameAttribute(string name) => Name = name;
+    }
+
+    public class TypeFieldAttribute : QueryRequestAttribute
+    {
+        public TypeFieldAttribute([CallerMemberName] string name = null) : base(name) {}
+    }
 }

@@ -1,16 +1,17 @@
+using System;
 using QueryVariable = System.Collections.Generic.KeyValuePair<string, System.Reflection.PropertyInfo>;
+using QueryRequest = System.Collections.Generic.KeyValuePair<CSGraphQL.Queries.QueryRequestAttribute, System.Reflection.PropertyInfo>;
 using System.Reflection;
 using System.Linq;
 using System.Text;
-using System;
 
 namespace CSGraphQL.Queries
 {
     public abstract class Query
     {
-        private readonly Type _type;
+        private readonly System.Type _type;
         private readonly QueryVariable[] _variables;
-        private readonly string[] _requests;
+        private readonly QueryRequest[] _requests;
         
         public readonly string Name;
 
@@ -39,22 +40,31 @@ namespace CSGraphQL.Queries
                     str.Append($"{name}: {value}, ");
             }
 
-            if(_variables.Length != 0) 
-                str.Remove(str.Length-2, 2).AppendLine("){");
+            if (_variables.Length != 0)
+                str.Remove(str.Length - 2, 2);
+            
+            str.AppendLine("){");
             
             //Query requests
             foreach (var request in _requests)
-                str.AppendLine(request);
+                str.AppendLine(RequestToString(request));
             
             str.AppendLine("}");
             str.AppendLine("}");
 
             return str.ToString();
         }
-        
-        private static QueryVariable[] GetVariables(Query query)
+
+        public static string RequestToString(QueryRequest request)
         {
-            var properties = query._type.GetProperties().Where(p =>
+            if (request.Value.PropertyType.BaseType != typeof(Type)) return request.Key.Name;
+            
+            return (Activator.CreateInstance(request.Value.PropertyType) as Type)?.ToString();
+        }
+        
+        public static QueryVariable[] GetVariables(object query)
+        {
+            var properties = query.GetType().GetProperties().Where(p =>
                     p.CustomAttributes.Any(a => a.AttributeType == typeof(QueryVariableAttribute)))
                 .ToArray();
 
@@ -68,9 +78,9 @@ namespace CSGraphQL.Queries
 
             return variables;
         }
-        private static string[] GetRequests(Query query)
+        public static QueryRequest[] GetRequests(object query)
         {
-            var properties = query._type.GetProperties().Where(p =>
+            var properties = query.GetType().GetProperties().Where(p =>
                     p.CustomAttributes.Any(a => a.AttributeType == typeof(QueryRequestAttribute)))
                 .ToArray();
 
@@ -78,7 +88,11 @@ namespace CSGraphQL.Queries
                 properties.Select(p => p.GetCustomAttribute<QueryRequestAttribute>())
                     .ToArray();
 
-            return attributes.Select(a => a.Name).ToArray();
+            var variables = new QueryRequest[properties.Length];
+            for (var i = 0; i < properties.Length; i++)
+                variables[i] = new QueryRequest(attributes[i], properties[i]);
+
+            return variables;
         }
     }
 }
