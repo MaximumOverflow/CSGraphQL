@@ -55,41 +55,54 @@ namespace CSGraphQL.GraphQL
             return vars;
         }
 
-        public override string ToString()
-        {
-            var str = new StringBuilder();
+        public override string ToString() => VariablesBit + ContentBit;
 
-            var nonNullVariables = Variables
-                .Where(v => v.Item2.GetValue(this) != null)
-                .ToArray(); 
-            
-            if (nonNullVariables.Length != 0)
+        public string VariablesBit
+        {
+            get
             {
+                var str = new StringBuilder();
+
+                var nonNullVariables = Variables
+                    .Where(v => v.Item2.GetValue(this) != null)
+                    .ToArray();
+
+                if (nonNullVariables.Length == 0) return str.ToString();
+                
                 str.Append("(");
                 foreach (var variable in Variables)
                     str.Append(VariableToString(variable));
                 str.Remove(str.Length - 2, 2).Append(")");
+
+                return str.ToString();
             }
+        }
 
-            str.AppendLine("{");
-
-            foreach (var (attribute, propertyInfo) in Requests)
+        public string ContentBit
+        {
+            get
             {
-                str.Append(attribute.Name);
+                var str = new StringBuilder();
+                str.AppendLine("{");
 
-                if(propertyInfo.IsCustomGraphQlType())             //Custom GraphQL Type
-                    str.Append(propertyInfo.GetValue(this));
-                if(propertyInfo.IsCustomGraphQlTypeArray())        //Custom GraphQL Type array
+                foreach (var (attribute, propertyInfo) in Requests)
                 {
-                    var instance = propertyInfo.GetAsCustomTypeArray(this)[0];
-                    str.Append(instance);
-                }
-                    
-                str.AppendLine();
-            }
+                    str.Append(attribute.Name);
 
-            str.Append("}");
-            return str.ToString();
+                    if(propertyInfo.IsCustomGraphQlType())             //Custom GraphQL Type
+                        str.Append(propertyInfo.GetValue(this));
+                    if(propertyInfo.IsCustomGraphQlTypeArray())        //Custom GraphQL Type array
+                    {
+                        var instance = propertyInfo.GetAsCustomTypeArray(this)[0];
+                        str.Append(instance);
+                    }
+                    
+                    str.AppendLine();
+                }
+
+                str.Append("}");
+                return str.ToString();
+            }
         }
 
         private string VariableToString(Variable variable)

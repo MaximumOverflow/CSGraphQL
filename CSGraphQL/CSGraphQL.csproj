@@ -6,7 +6,7 @@
         <Title>CSGraphQL</Title>
         <Authors>MaximumOverflow</Authors>
         <RootNamespace>CSGraphQL</RootNamespace>
-        <PackageVersion>0.7.0</PackageVersion>
+        <PackageVersion>0.7.1</PackageVersion>
         <Description>A simple GraphQL wrapper for C#</Description>
         <RepositoryUrl>https://github.com/MaximumOverflow/CSGraphQL</RepositoryUrl>
     </PropertyGroup>

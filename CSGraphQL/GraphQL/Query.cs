@@ -47,7 +47,8 @@ namespace CSGraphQL.GraphQL
                     try
                     {
                         var qvar = Variables.First(v => v.Item1.Name == vattr.Name);
-                        vprop.SetValue(obj, qvar.Item2.GetValue(this));
+                        var value = qvar.Item2.GetValue(this);
+                        if(value != null) vprop.SetValue(obj, value);
                     }
                     catch (InvalidOperationException) {}
                 }
