@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CSGraphQL.Queries;
 using System.Text;
 using System.IO;
 using System;
+using CSGraphQL.GraphQL;
 
 namespace CSGraphQL.Client
 {
     public static class ClientExtensions
     {
-        public static async Task<string> PostToJsonAsync(this GraphQlClient client, Query query, params KeyValuePair<string, string>[] headers)
+        public static async Task<string> PostToJsonAsync<T>(this GraphQlClient client, Query<T> query, params KeyValuePair<string, string>[] headers) where T : GraphQL.Type
         {
-            var response = await client.PostAsync(query, headers);
+            var response = await client.PostQueryAsync(query, headers);
 
             await using var stream = response?.GetResponseStream();
 
@@ -25,7 +25,7 @@ namespace CSGraphQL.Client
             catch (Exception) { return null; }
         }
 
-        public static string PostToJson(this GraphQlClient client, Query query, params KeyValuePair<string, string>[] headers)
+        public static string PostToJson<T>(this GraphQlClient client, Query<T> query, params KeyValuePair<string, string>[] headers) where T : GraphQL.Type
             => PostToJsonAsync(client, query, headers).Result;
 
     }

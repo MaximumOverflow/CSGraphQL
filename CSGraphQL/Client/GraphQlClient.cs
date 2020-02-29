@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using CSGraphQL.Queries;
+using CSGraphQL.GraphQL;
 using Newtonsoft.Json;
 using System.Text;
 using System.Net;
 using System.IO;
 using System;
+
+using Type = CSGraphQL.GraphQL.Type;
 
 namespace CSGraphQL.Client
 {
@@ -22,10 +24,10 @@ namespace CSGraphQL.Client
         
         public GraphQlClient(string url) => Url = url;
 
-        public WebResponse Post(Query query, params KeyValuePair<string, string>[] headers)
-             => PostAsync(query, headers).Result;
+        internal WebResponse PostQuery<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+             => PostQueryAsync(query, headers).Result;
 
-        public async Task<WebResponse> PostAsync(Query query, params KeyValuePair<string, string>[] headers)
+        internal async Task<WebResponse> PostQueryAsync<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
         {
             var request = SetupRequest(query, headers);
 
@@ -39,16 +41,16 @@ namespace CSGraphQL.Client
         }
         
         
-        public async Task<T> PostAsync<T>(Query query, params KeyValuePair<string, string>[] headers) where T : IQueryResult
+        public async Task<T> PostAsync<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
         {
             var json = (JObject) JObject.Parse(await this.PostToJsonAsync(query, headers))["data"][query.Name];
             return JsonConvert.DeserializeObject<T>(json.ToString(), JsonSettings);
         }
 
-        public T Post<T>(Query query, params KeyValuePair<string, string>[] headers) where T : IQueryResult
+        public T Post<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
             => PostAsync<T>(query, headers).Result;
         
-        private WebRequest SetupRequest(Query query, params KeyValuePair<string, string>[] headers)
+        private WebRequest SetupRequest<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
         {
             var request = WebRequest.Create(Url);
             request.Method = "POST";
