@@ -1,32 +1,31 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Text;
-using System.IO;
 using System;
+using System.IO;
+using System.Text;
 using CSGraphQL.GraphQL;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace CSGraphQL.Client
+namespace CSGraphQL.Extensions
 {
-    public static class ClientExtensions
-    {
-        public static async Task<string> PostToJsonAsync<T>(this GraphQlClient client, Query<T> query, params KeyValuePair<string, string>[] headers) where T : GraphQL.Type
-        {
-            var response = await client.PostQueryAsync(query, headers);
+	public static class ClientExtensions
+	{
+		public static async Task<string> PostToJsonAsync(this GraphQlClient client, GraphQlQuery query, params KeyValuePair<string, string>[] headers)
+		{
+			var response = await client.PostQueryAsync(query, headers);
 
-            await using var stream = response?.GetResponseStream();
+			await using var stream = response?.GetResponseStream();
 
-            if (stream == null) return null;
+			if (stream == null) return null;
 
-            try
-            {
-                using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    return reader.ReadToEnd();
-            }
-            catch (Exception) { return null; }
-        }
+			try
+			{
+				using (var reader = new StreamReader(stream, Encoding.UTF8))
+					return reader.ReadToEnd();
+			}
+			catch (Exception) { return null; }
+		}
 
-        public static string PostToJson<T>(this GraphQlClient client, Query<T> query, params KeyValuePair<string, string>[] headers) where T : GraphQL.Type
-            => PostToJsonAsync(client, query, headers).Result;
-
-    }
+		public static string PostToJson(this GraphQlClient client, GraphQlQuery query, params KeyValuePair<string, string>[] headers)
+			=> PostToJsonAsync(client, query, headers).Result;
+	}
 }

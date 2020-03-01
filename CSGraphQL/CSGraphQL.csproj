@@ -3,17 +3,22 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>0.8.0</PackageVersion>
         <Title>CSGraphQL</Title>
-        <Authors>MaximumOverflow</Authors>
-        <RootNamespace>CSGraphQL</RootNamespace>
-        <PackageVersion>0.7.1</PackageVersion>
-        <Description>A simple GraphQL wrapper for C#</Description>
+        <Authors>Massimo Bertozzi</Authors>
+        <Description>A simple GraphQL client library</Description>
         <RepositoryUrl>https://github.com/MaximumOverflow/CSGraphQL</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="CaseExtensions" Version="1.0.3" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="GraphQL\ShortAttributes.cs">
+        <DependentUpon>Attributes.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

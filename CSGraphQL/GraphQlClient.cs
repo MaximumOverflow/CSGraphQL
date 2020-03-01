@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using CSGraphQL.GraphQL;
-using Newtonsoft.Json;
-using System.Text;
-using System.Net;
-using System.IO;
 using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using Newtonsoft.Json;
+using CSGraphQL.GraphQL;
+using Newtonsoft.Json.Linq;
+using CSGraphQL.Extensions;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-using Type = CSGraphQL.GraphQL.Type;
-
-namespace CSGraphQL.Client
+namespace CSGraphQL
 {
     public class GraphQlClient
     {
@@ -24,10 +23,10 @@ namespace CSGraphQL.Client
         
         public GraphQlClient(string url) => Url = url;
 
-        internal WebResponse PostQuery<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+        internal WebResponse PostQuery(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
              => PostQueryAsync(query, headers).Result;
 
-        internal async Task<WebResponse> PostQueryAsync<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+        internal async Task<WebResponse> PostQueryAsync(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
         {
             var request = SetupRequest(query, headers);
 
@@ -41,16 +40,16 @@ namespace CSGraphQL.Client
         }
         
         
-        public async Task<T> PostAsync<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+        public async Task<T> PostAsync<T>(GraphQlQuery query, params KeyValuePair<string, string>[] headers) where T : GraphQlType
         {
             var json = (JObject) JObject.Parse(await this.PostToJsonAsync(query, headers))["data"][query.Name];
             return JsonConvert.DeserializeObject<T>(json.ToString(), JsonSettings);
         }
 
-        public T Post<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+        public T Post<T>(GraphQlQuery query, params KeyValuePair<string, string>[] headers) where T : GraphQlType
             => PostAsync<T>(query, headers).Result;
         
-        private WebRequest SetupRequest<T>(Query<T> query, params KeyValuePair<string, string>[] headers) where T : Type
+        private WebRequest SetupRequest(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
         {
             var request = WebRequest.Create(Url);
             request.Method = "POST";
@@ -58,7 +57,7 @@ namespace CSGraphQL.Client
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
 
-            var json = JsonConvert.SerializeObject(new { query = query.ToString() });
+            var json = JsonConvert.SerializeObject(new { query = $"query {{\n{query.ToString(true)}\n}}" });
             
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             request.ContentLength = jsonBytes.Length;
