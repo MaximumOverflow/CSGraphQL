@@ -47,11 +47,12 @@ namespace CSGraphQL.GraphQL
 			return str.ToString();
 		}
 
-		public string AsQueryString(bool root = false)
+		public string AsQueryString(bool root = false, string name = null)
 		{
 			var str = new StringBuilder();
-			
-			str.Append(root ? Name : Name.ToCamelCase());
+
+			if (name != null) str.Append(name); 
+			else str.Append(root ? Name : Name.ToCamelCase());
 			
 			str.AppendLine(" {");
 
