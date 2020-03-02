@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace CSGraphQL.GraphQL.Short
 {
 	public class FieldAttribute : TypeFieldAttribute 
-	{ public FieldAttribute([CallerMemberName] string name = null) : base(name) {} }
+	{ public FieldAttribute([CallerMemberName] string name = null, bool expandContentsAsQuery = true) : base(name, expandContentsAsQuery) {} }
 		
 	public class VariableAttribute : QueryFieldAttribute 
 	{ public VariableAttribute([CallerMemberName] string name = null) : base(QueryFieldType.Variable, name) {} }
@@ -13,5 +13,5 @@ namespace CSGraphQL.GraphQL.Short
 	{ public NestedVariableAttribute([CallerMemberName] string name = null) : base(QueryFieldType.NestedVariable, name) {} }
 		
 	public class RequestAttribute : QueryFieldAttribute 
-	{ public RequestAttribute([CallerMemberName] string name = null) : base(QueryFieldType.Request, name) {} }
+	{ public RequestAttribute([CallerMemberName] string name = null, bool expandContents = true) : base(QueryFieldType.Request, name, expandContents) {} }
 }

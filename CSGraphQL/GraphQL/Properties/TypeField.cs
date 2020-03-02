@@ -13,6 +13,8 @@ namespace CSGraphQL.GraphQL.Properties
 
 		public override string ToString()
 		{
+			if (!Attribute.ExpandContents) return Name;
+
 			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString();
 			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString();
 

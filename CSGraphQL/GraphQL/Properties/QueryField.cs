@@ -31,6 +31,8 @@ namespace CSGraphQL.GraphQL.Properties
 					_ => $"{Name}: {Value}"
 				};
 			}
+
+			if (!Attribute.ExpandContents) return Name;
 			
 			if (IsQuery) return ValueAsQuery.ToString();
 			if (IsQueryArray) return Activator.CreateInstance(ValueType.GetElementType()).ToString();

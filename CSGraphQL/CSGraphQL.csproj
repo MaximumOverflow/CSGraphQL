@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>0.8.0</PackageVersion>
+        <PackageVersion>0.8.2</PackageVersion>
         <Title>CSGraphQL</Title>
         <Authors>Massimo Bertozzi</Authors>
         <Description>A simple GraphQL client library</Description>

@@ -7,7 +7,12 @@ namespace CSGraphQL.GraphQL
 	public abstract class NamedAttribute : Attribute
 	{
 		public readonly string Name;
-		public NamedAttribute([CallerMemberName] string name = null) => Name = name;
+		public readonly bool ExpandContents;
+		public NamedAttribute([CallerMemberName] string name = null, bool expandContents = true)
+		{
+			Name = name;
+			ExpandContents = expandContents;
+		}
 	}
 	
 	[AttributeUsage(AttributeTargets.Class)]
@@ -19,7 +24,7 @@ namespace CSGraphQL.GraphQL
 	[AttributeUsage(AttributeTargets.Property)]
 	public class TypeFieldAttribute : NamedAttribute
 	{
-		public TypeFieldAttribute([CallerMemberName] string name = null) : base(name.ToCamelCase()) {}
+		public TypeFieldAttribute([CallerMemberName] string name = null, bool expandContentsAsQuery = true) : base(name.ToCamelCase(), expandContentsAsQuery) {}
 	}
 
 	public enum QueryFieldType { Variable, NestedVariable, Request }
@@ -35,7 +40,7 @@ namespace CSGraphQL.GraphQL
 	{
 		
 		public readonly QueryFieldType Type;
-		public QueryFieldAttribute(QueryFieldType type, [CallerMemberName] string name = null) : base(name.ToCamelCase())
+		public QueryFieldAttribute(QueryFieldType type, [CallerMemberName] string name = null, bool expandContents = true) : base(name.ToCamelCase(), expandContents)
 			=> Type = type;
 
 		public bool IsVariable => Type == QueryFieldType.Variable;
