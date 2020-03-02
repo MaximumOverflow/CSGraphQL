@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using CaseExtensions;
@@ -13,11 +14,10 @@ namespace CSGraphQL.GraphQL.Properties
 		public QueryField(PropertyInfo property, QueryFieldAttribute attribute, object parent, QueryFieldType type)
 			: base(property, attribute, parent) => Type = type;
 		
-		public bool IsQuery => Property.IsGraphQlQuery();
-		public bool IsQueryArray => Property.IsGraphQlQueryArray();
-		
-		public bool IsCustomType => Property.IsGraphQlType();
-		public bool IsCustomTypeArray => Property.IsGraphQlTypeArray();
+		public bool IsQuery => ValueType.IsSubclassOf(typeof(GraphQlQuery));
+		public bool IsQueryArray => ValueType.IsSubclassOf(typeof(IEnumerable<GraphQlQuery>));
+		public bool IsCustomType => ValueType.IsSubclassOf(typeof(GraphQlType));
+		public bool IsCustomTypeArray => ValueType.IsSubclassOf(typeof(IEnumerable<GraphQlType>));
 		public GraphQlQuery ValueAsQuery => Value as GraphQlQuery;
 
 		public override string ToString()
@@ -31,7 +31,6 @@ namespace CSGraphQL.GraphQL.Properties
 			
 			if (IsQuery) return ValueAsQuery.ToString();
 			if (IsQueryArray) return Activator.CreateInstance(ValueType.GetElementType()).ToString();
-
 			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString(name: Name);
 			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString();
 			return Name;
