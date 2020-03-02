@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using CaseExtensions;
 using CSGraphQL.Extensions;
 
 namespace CSGraphQL.GraphQL.Properties
@@ -24,7 +25,7 @@ namespace CSGraphQL.GraphQL.Properties
 			{
 				return Value switch
 				{
-					Enum _ => $"{Name}: {Value.ToString().ToUpper()}",
+					Enum _ => $"{Name}: {Value.ToString().ToSnakeCase().ToUpper()}",
 					string _ => $"{Name}: \"{Value}\"",
 					bool _ => $"{Name}: {Value.ToString().ToLower()}",
 					
