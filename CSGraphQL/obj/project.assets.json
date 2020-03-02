@@ -4537,7 +4537,7 @@
     "/home/max/.nuget/packages/": {}
   },
   "project": {
-    "version": "0.8.3",
+    "version": "0.8.8",
     "restore": {
       "projectUniqueName": "/home/max/RiderProjects/CSGraphQL/CSGraphQL/CSGraphQL.csproj",
       "projectName": "CSGraphQL",

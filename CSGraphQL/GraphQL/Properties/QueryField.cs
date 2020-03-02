@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Text;
 using CaseExtensions;
 using CSGraphQL.Extensions;
 
@@ -23,14 +24,7 @@ namespace CSGraphQL.GraphQL.Properties
 		{
 			if (Type == QueryFieldType.Variable)
 			{
-				return Value switch
-				{
-					Enum _ => $"{Name}: {Value.ToString().ToSnakeCase().ToUpper()}",
-					string _ => $"{Name}: \"{Value}\"",
-					bool _ => $"{Name}: {Value.ToString().ToLower()}",
-					
-					_ => $"{Name}: {Value}"
-				};
+				return $"{Name}: {ValueToString(Value)}";
 			}
 
 			if (!Attribute.ExpandContents) return Name;
@@ -41,6 +35,35 @@ namespace CSGraphQL.GraphQL.Properties
 			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString(name: Name);
 			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString();
 			return Name;
+		}
+
+		private string ValueToString(object value)
+		{
+			if (value.GetType().IsArray) return ArrayToString(value);
+			
+			return value switch
+			{
+				Enum _ => value.ToString().ToSnakeCase().ToUpper(),
+				string _ => $"\"{value}\"",
+				bool _ => value.ToString().ToLower(),
+				_ => value.ToString()
+			};
+		}
+
+		private string ArrayToString(dynamic array)
+		{
+			var str = new StringBuilder();
+
+			str.Append("[");
+			if (array.Length != 0)
+			{
+				foreach (var value in array)
+					str.Append(ValueToString(value)).Append(", ");
+				str.Remove(str.Length - 2, 2);
+			}
+			str.Append("]");
+
+			return str.ToString();
 		}
 	}
 }
