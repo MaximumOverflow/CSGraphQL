@@ -15,8 +15,8 @@ namespace CSGraphQL.GraphQL.Properties
 		{
 			if (!Attribute.ExpandContents) return Name;
 
-			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString();
-			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString();
+			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString(name: Attribute.Name);
+			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString(name: Attribute.Name);
 
 			return Name;
 		}
