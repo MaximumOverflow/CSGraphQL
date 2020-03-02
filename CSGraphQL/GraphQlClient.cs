@@ -9,6 +9,8 @@ using CSGraphQL.Extensions;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using Header = System.Collections.Generic.KeyValuePair<string, string>;
+
 namespace CSGraphQL
 {
     public class GraphQlClient
@@ -23,13 +25,8 @@ namespace CSGraphQL
         
         public GraphQlClient(string url) => Url = url;
 
-        internal WebResponse PostQuery(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
-             => PostQueryAsync(query, headers).Result;
-
-        internal async Task<WebResponse> PostQueryAsync(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
+        internal async Task<WebResponse> PostRequestAsync(WebRequest request, params Header[] headers)
         {
-            var request = SetupRequest(query, headers);
-
             try { return await request.GetResponseAsync(); }
             catch (WebException e)
             {
@@ -38,26 +35,38 @@ namespace CSGraphQL
                 throw;
             }
         }
+
+        internal async Task<WebResponse> PostQueryAsync(GraphQlQuery query, params Header[] headers)
+            => await PostRequestAsync(SetupQuery(query, headers), headers);
+        internal async Task<WebResponse> PostMutationAsync(GraphQlMutation mutation, params Header[] headers)
+            => await PostRequestAsync(SetupMutation(mutation, headers), headers);
+
+
+        public T Post<T>(GraphQlQuery query, params Header[] headers) where T : GraphQlType
+            => PostAsync<T>(query, headers).Result;
         
-        
-        public async Task<T> PostAsync<T>(GraphQlQuery query, params KeyValuePair<string, string>[] headers) where T : GraphQlType
+        public async Task<T> PostAsync<T>(GraphQlQuery query, params Header[] headers) where T : GraphQlType
         {
             var json = (JObject) JObject.Parse(await this.PostToJsonAsync(query, headers))["data"][query.Name];
             return JsonConvert.DeserializeObject<T>(json.ToString(), JsonSettings);
         }
-
-        public T Post<T>(GraphQlQuery query, params KeyValuePair<string, string>[] headers) where T : GraphQlType
-            => PostAsync<T>(query, headers).Result;
         
-        private WebRequest SetupRequest(GraphQlQuery query, params KeyValuePair<string, string>[] headers)
+        public T Post<T>(GraphQlMutation mutation, params Header[] headers) where T : GraphQlType
+            => PostAsync<T>(mutation, headers).Result;
+        
+        public async Task<T> PostAsync<T>(GraphQlMutation mutation, params Header[] headers) where T : GraphQlType
+        {
+            var json = (JObject) JObject.Parse(await this.PostToJsonAsync(mutation, headers))["data"][mutation.Name];
+            return JsonConvert.DeserializeObject<T>(json.ToString(), JsonSettings);
+        }
+
+        private WebRequest SetupRequest(string json, params Header[] headers)
         {
             var request = WebRequest.Create(Url);
             request.Method = "POST";
             request.ContentType = "application/json";
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
-
-            var json = JsonConvert.SerializeObject(new { query = $"query {{\n{query.ToString(true)}\n}}" });
             
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             request.ContentLength = jsonBytes.Length;
@@ -66,6 +75,18 @@ namespace CSGraphQL
                 stream.Write(jsonBytes);
 
             return request;
+        }
+        
+        private WebRequest SetupQuery(GraphQlQuery query, params Header[] headers)
+        {
+            var json = JsonConvert.SerializeObject(new { query = $"query {{\n{query}\n}}" });
+            return SetupRequest(json, headers);
+        }
+        
+        private WebRequest SetupMutation(GraphQlMutation mutation, params Header[] headers)
+        {
+            var json = JsonConvert.SerializeObject(new { query = $"mutation {{\n{mutation.ToString(true)}\n}}" });
+            return SetupRequest(json, headers);
         }
     }
 }

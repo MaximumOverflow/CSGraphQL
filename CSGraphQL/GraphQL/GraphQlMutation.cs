@@ -1,13 +1,14 @@
 using System;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using CSGraphQL.GraphQL.Properties;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using CaseExtensions;
+using CSGraphQL.GraphQL.Properties;
 
 namespace CSGraphQL.GraphQL
 {
-	public abstract class GraphQlQuery
+	public abstract class GraphQlMutation
 	{
 		internal QueryField[] Requests;
 		internal QueryField[] Variables;
@@ -15,10 +16,10 @@ namespace CSGraphQL.GraphQL
 		
 		internal string Name;
 
-		protected GraphQlQuery()
+		protected GraphQlMutation()
 		{
 			var tp = GetType();
-			Name = tp.GetCustomAttribute<QueryNameAttribute>()?.Name ?? tp.Name;
+			Name = tp.GetCustomAttribute<MutationNameAttribute>()?.Name ?? tp.Name;
 
 			Requests = GetFields(this, QueryFieldType.Request).ToArray();
 			Variables = GetFields(this, QueryFieldType.Variable).ToArray();
@@ -37,20 +38,21 @@ namespace CSGraphQL.GraphQL
 			}
 		}
 
-		internal void SetVariablesRecursive(QueryField[] variables)
+		private void SetVariablesRecursive(QueryField[] variables)
 		{
 			SetVariables(variables);
 			foreach (var request in Requests.Where(r => r.IsQuery))
 				request.ValueAsQuery.SetVariablesRecursive(NestedVariables);
 		}
 
-		public override string ToString()
+		public override string ToString() => ToString(false);
+		public virtual string ToString(bool root)
 		{
 			SetVariablesRecursive(NestedVariables);
 			
 			var str = new StringBuilder();
 
-			str.Append(Name);
+			str.Append(root ? Name : Name.ToCamelCase());
 			
 			var nonNullVars = Variables.Where(v => v.Value != null).ToArray();
 			if (nonNullVars.Length != 0)
@@ -72,7 +74,7 @@ namespace CSGraphQL.GraphQL
 			return str.ToString();
 		}
 
-		public static IEnumerable<QueryField> GetFields(GraphQlQuery query, QueryFieldType type)
+		public static IEnumerable<QueryField> GetFields(GraphQlMutation query, QueryFieldType type)
 		{
 			var properties = query.GetType().GetProperties();
 

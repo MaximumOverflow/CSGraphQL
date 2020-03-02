@@ -46,4 +46,10 @@ namespace CSGraphQL.GraphQL
 		public bool IsVariable => Type == QueryFieldType.Variable;
 		public bool IsRequest => Type == QueryFieldType.Request;
 	}
+	
+	[AttributeUsage(AttributeTargets.Class)]
+	public class MutationNameAttribute : NamedAttribute
+	{
+		public MutationNameAttribute([CallerMemberName] string name = null) : base(name.ToPascalCase()) {}
+	}
 }
