@@ -42,7 +42,7 @@ namespace CSGraphQL.GraphQL.Properties
 			
 			return value switch
 			{
-				Enum _ => value.ToString().ToSnakeCase().ToUpper(),
+				Enum _ => value.ToString().IsAllUpperCase() ? value.ToString() : value.ToString().ToUpperSnakeCase(),
 				string _ => $"\"{value}\"",
 				bool _ => value.ToString().ToLower(),
 				_ => value.ToString()

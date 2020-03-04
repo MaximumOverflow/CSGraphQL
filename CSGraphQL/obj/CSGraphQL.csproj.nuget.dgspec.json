@@ -5,7 +5,7 @@
   },
   "projects": {
     "/home/max/RiderProjects/CSGraphQL/CSGraphQL/CSGraphQL.csproj": {
-      "version": "0.8.8",
+      "version": "0.8.9",
       "restore": {
         "projectUniqueName": "/home/max/RiderProjects/CSGraphQL/CSGraphQL/CSGraphQL.csproj",
         "projectName": "CSGraphQL",
