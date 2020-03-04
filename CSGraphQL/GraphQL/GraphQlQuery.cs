@@ -44,13 +44,15 @@ namespace CSGraphQL.GraphQL
 				request.ValueAsQuery.SetVariablesRecursive(NestedVariables);
 		}
 
-		public override string ToString()
+		public override string ToString() => ToString(true);
+		
+		public string ToString(bool root)
 		{
 			SetVariablesRecursive(NestedVariables);
 			
 			var str = new StringBuilder();
 
-			str.Append(Name);
+			str.Append(root ? Name : Name.ToLower());
 			
 			var nonNullVars = Variables.Where(v => v.Value != null).ToArray();
 			if (nonNullVars.Length != 0)
