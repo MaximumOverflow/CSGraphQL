@@ -15,9 +15,9 @@ namespace CSGraphQL.GraphQL.Properties
 			: base(property, attribute, parent) => Type = type;
 		
 		public bool IsQuery => ValueType.IsSubclassOf(typeof(GraphQlQuery));
-		public bool IsQueryArray => ValueType.IsSubclassOf(typeof(IEnumerable<GraphQlQuery>));
+		public bool IsQueryArray => ValueType.IsArray && ValueType.GetElementType().IsSubclassOf(typeof(GraphQlQuery));
 		public bool IsCustomType => ValueType.IsSubclassOf(typeof(GraphQlType));
-		public bool IsCustomTypeArray => ValueType.IsSubclassOf(typeof(IEnumerable<GraphQlType>));
+		public bool IsCustomTypeArray => ValueType.IsArray && ValueType.GetElementType().IsSubclassOf(typeof(GraphQlType));
 		public GraphQlQuery ValueAsQuery => Value as GraphQlQuery;
 
 		public override string ToString()
@@ -30,9 +30,11 @@ namespace CSGraphQL.GraphQL.Properties
 			if (!Attribute.ExpandContents) return Name;
 			
 			if (IsQuery) return ValueAsQuery.ToString(false);
-			if (IsQueryArray) return Activator.CreateInstance(ValueType.GetElementType()).ToString();
 			if (IsCustomType) return ((GraphQlType) Activator.CreateInstance(ValueType)).AsQueryString(name: Name);
+			
+			if (IsQueryArray) return Activator.CreateInstance(ValueType.GetElementType()).ToString();
 			if (IsCustomTypeArray) return ((GraphQlType) Activator.CreateInstance(ValueType.GetElementType())).AsQueryString();
+			
 			return Name;
 		}
 
